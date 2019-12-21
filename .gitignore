@@ -1,0 +1,8 @@
+datasets/
+myanimelist_scrape/
+test.py
+genres.txt
+NO.txt
+notes.csv
+*.gz
+*.ipynb
