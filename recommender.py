@@ -27,10 +27,16 @@ def content_based(args):
     user_animes_seen = {}
     if not user_df.empty:
         user_animes_seen = user_df.set_index('animeID').to_dict()['scored']
+    print(bool(user_animes_seen))
 
     # anime to recommend based off of
     sel_anime = args.sel_anime
-    sel_anime_id = get_id_from_name(anime_df, sel_anime)
+    print(sel_anime in anime_df['name'].values)
+    if sel_anime in anime_df['name'].values:
+        sel_anime_id = get_id_from_name(anime_df, sel_anime)
+    else:
+        sel_anime_id = 1  # default to Cowboy Bepop if incorrect name
+    print(sel_anime_id)
     sel_anime_index = anime_df.loc[(anime_df['animeID'] == sel_anime_id)].index[0]
 
     # combine features to utilize in count/similarity matrices
@@ -45,14 +51,21 @@ def content_based(args):
 
     # Now we sort the similar animes; ignore the first entry because it'll be the same anime specified
     similar_animes = list(enumerate(sim_matrix[sel_anime_index]))
-    similar_animes_sorted = sorted(similar_animes, key=lambda x: x[1])
+    similar_animes_sorted = sorted(similar_animes, key=lambda x: x[1], reverse=True)[1:args.num_recs*2]
 
     # Instead of just taking the most similar anime recommendation, let's instead sort them by the
     # animes that score the best relative to the number of people that scored
     anime_df.fillna(0)
-    anime_df['norm_score'] = anime_df['scored'] / anime_df['scoredBy']
+
+    # shrinkage estimator
+    # https://stats.stackexchange.com/questions/6418/rating-system-taking-account-of-number-of-votes
+    v = anime_df['scoredBy']
+    m = anime_df['scoredBy'].mean()
+    R = anime_df['scored']
+    C = anime_df['scored'].mean()
+    anime_df['norm_score'] = (v / (v + m)) * R + (m / (v+m)) * C
     anime_df.fillna(0)
-    similar_animes_norm_score = sorted(similar_animes, key=lambda x: anime_df['norm_score'][x[0]])
+    similar_animes_norm_score = sorted(similar_animes_sorted, key=lambda x: anime_df['norm_score'][x[0]], reverse=True)
 
 
     # Loop through to collect the anime ids from the recommendations

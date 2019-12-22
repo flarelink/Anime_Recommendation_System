@@ -92,7 +92,7 @@ def scrape_user_data_from_username(username=None, inc_watching=False):
         if source.status_code == 200:
             vals = []
 
-            source.html.render(scrolldown=1000)  # run the javascript on the page and obtain the html
+            source.html.render(scrolldown=3000)  # run the javascript on the page and obtain the html
             source.html.html
 
             soup = BeautifulSoup(source.html.html, "html.parser")
@@ -133,7 +133,7 @@ def scrape_user_data_from_username(username=None, inc_watching=False):
                     df.loc[pos] = vals
                     vals = []
                     pos += 1
-
+            print(pos)
         else:
             print('The url was: ', 'https://myanimelist.net/animelist/' + username + '?status=2')
             print('Unable to scrape user data', source.status_code)
