@@ -64,6 +64,8 @@ def create_parser():
                         help='Specify path to user profile gz')
     parser.add_argument('-u', '--username', type=str, default=None,
                         help='Specify your myanimelist.net username to make sure the anime has not been seen by you')
+    parser.add_argument('-w', '--watching_list', type=str2bool, default=False,
+                        help='Specify if you want to account for animes you are currently watching')
 
     args = parser.parse_args()
 

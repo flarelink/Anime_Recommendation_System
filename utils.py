@@ -81,13 +81,13 @@ def user_xml_to_pandas_df(gz_file_path=None):
     return user_df
 
 
-def scrape_user_data_from_username(username=None):
+def scrape_user_data_from_username(username=None, inc_watching=False):
     # reference: http://theautomatic.net/2019/01/19/scraping-data-from-javascript-webpage-python/
-    df = pd.DataFrame(columns=['animeID', 'scored'])
+    df = pd.DataFrame(columns=['animeID', 'scored', 'status'])
     pos = 0
     if username:
         session = HTMLSession()
-        source = session.get('https://myanimelist.net/animelist/' + username + '?status=2')
+        source = session.get('https://myanimelist.net/animelist/' + username)
 
         if source.status_code == 200:
             vals = []
@@ -97,21 +97,42 @@ def scrape_user_data_from_username(username=None):
 
             soup = BeautifulSoup(source.html.html, "html.parser")
             for anime_row in soup.find_all('tbody', class_='list-item'):
-                anime_id = anime_row.find('a', class_='link sort')['href'].split('/')[-2]
 
-                bad_chars = str.maketrans(dict.fromkeys("\n[]', "))
-                anime_scored = anime_row.find('td', class_='data score').text
-                anime_scored = anime_scored.translate(bad_chars)
-                if anime_scored == '-':
-                    anime_scored = 0
+                if anime_row.find('td', class_='data status watching') and inc_watching:
+                    anime_id = anime_row.find('a', class_='link sort')['href'].split('/')[-2]
 
-                vals.append(int(anime_id))
-                vals.append(int(anime_scored))
+                    bad_chars = str.maketrans(dict.fromkeys("\n[]', "))
+                    anime_scored = anime_row.find('td', class_='data score').text
+                    anime_scored = anime_scored.translate(bad_chars)
+                    if anime_scored == '-':
+                        anime_scored = 0
 
-                # anime_id and anime_scored
-                df.loc[pos] = vals
-                vals = []
-                pos += 1
+                    vals.append(int(anime_id))
+                    vals.append(int(anime_scored))
+                    vals.append('watching')
+
+                    # anime_id and anime_scored
+                    df.loc[pos] = vals
+                    vals = []
+                    pos += 1
+
+                elif anime_row.find('td', class_='data status completed'):
+                    anime_id = anime_row.find('a', class_='link sort')['href'].split('/')[-2]
+
+                    bad_chars = str.maketrans(dict.fromkeys("\n[]', "))
+                    anime_scored = anime_row.find('td', class_='data score').text
+                    anime_scored = anime_scored.translate(bad_chars)
+                    if anime_scored == '-':
+                        anime_scored = 0
+
+                    vals.append(int(anime_id))
+                    vals.append(int(anime_scored))
+                    vals.append('completed')
+
+                    # anime_id and anime_scored
+                    df.loc[pos] = vals
+                    vals = []
+                    pos += 1
 
         else:
             print('The url was: ', 'https://myanimelist.net/animelist/' + username + '?status=2')

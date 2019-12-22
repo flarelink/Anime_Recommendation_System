@@ -23,7 +23,7 @@ def content_based(args):
 
     # single user anime list extracted
     # user_df = user_xml_to_pandas_df(args.user_gz)  # replacing with just referencing username and scraping from web
-    user_df = scrape_user_data_from_username(args.username)
+    user_df = scrape_user_data_from_username(args.username, args.watching_list)
     user_animes_seen = {}
     if not user_df.empty:
         user_animes_seen = user_df.set_index('animeID').to_dict()['scored']
