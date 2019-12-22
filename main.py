@@ -1,7 +1,6 @@
 ##############################################################################
-# main.py - Music generation program using a recurrent neural network. The
-#           file takes an input folder with .mp3 files and trains on these
-#           files to create new .mp3 files filled with new music.
+# main.py - Anime recommendation system - updated with all animes up until
+#           12/21/19
 #
 # Copyright (C) 2019   Humza Syed
 #
@@ -12,7 +11,7 @@ from __future__ import print_function, division
 import argparse
 import os
 import pandas as pd
-from utils import scrape_genres, user_xml_to_pandas_df
+from recommender import content_based
 
 """
 ##############################################################################
@@ -48,9 +47,15 @@ def create_parser():
 
     # arguments for dataset
     parser.add_argument('-d', '--dataset_path', type=str, default=os.path.join(os.getcwd(), 'Anime.csv'),
-                        help='Specify dataset path')
+                        help='Specify path to dataset')
+
+    # arguments for recommender system
     parser.add_argument('-g', '--genres', type=str2bool, default=False,
-                        help='Specify if we want to grab genres off web page')
+                        help='Specify if we want to grab genres off web page or from local txt file')
+    parser.add_argument('-s', '--sel_anime', type=str, default="One Piece",
+                        help='The anime you want recommendations based off of')
+    parser.add_argument('-n', '--num_recs', type=int, default=5,
+                        help='Number of output recommendations')
 
     # arguments for user data
     # extract gz from: https://myanimelist.net/panel.php?go=export
@@ -78,14 +83,12 @@ def main():
     # parsing input arguments
     args = create_parser()
 
-    # load data into Dataframe
-    anime_df = pd.read_csv(args.dataset_path)
+    # run through anime recommender
+    recommendations, scraped_images = content_based(args)
 
-    # all genres
-    genres = scrape_genres(args.genres)
-
-    # user anime list extracted using:
-    user_df = user_xml_to_pandas_df(args.user_gz)
+    for r, img in zip(recommendations, scraped_images):
+        print(r)
+        print(img)
 
 
 

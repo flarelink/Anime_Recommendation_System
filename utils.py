@@ -2,11 +2,14 @@ from bs4 import BeautifulSoup
 import requests
 import pandas as pd
 import gzip
+from requests_html import HTMLSession
 
 
 def scrape_genres(genres_flag=True):
     """
-    Scrapes anime genres from myanimelist.net
+    TODO - You can ignore this function -> it was a great learning exercise for me
+    Scrapes anime genres from myanimelist.net.
+    I didn't end up using this function but it was a good learning experience for web scraping.
 
     Parameters:
     genres_flag (Boolean): Determines if we scrape genres from the web or reference the generated txt file
@@ -20,14 +23,16 @@ def scrape_genres(genres_flag=True):
     if genres_flag:
         file = open('genres.txt', 'w')
 
-        source = requests.get('https://myanimelist.net/anime.php').text
-        soup = BeautifulSoup(source, "html.parser")
-        for match in soup.find_all('a', class_='genre-name-link'):
-            one_genre = match.text.split(' ')[0]
-            file.write(one_genre + '\n')
-            genres.append(one_genre)
-            if one_genre == "Yuri":
-                break
+        source = requests.get('https://myanimelist.net/anime.php')
+
+        if source.status_code == 200:
+            soup = BeautifulSoup(source.text, "html.parser")
+            for match in soup.find_all('a', class_='genre-name-link'):
+                one_genre = match.text.split(' ')[0]
+                file.write(one_genre + '\n')
+                genres.append(one_genre)
+                if one_genre == "Yuri":
+                    break
 
         file.close()
 
@@ -43,8 +48,9 @@ def scrape_genres(genres_flag=True):
     return genres
 
 
-def user_xml_to_pandas_df(gz_file_path):
+def user_xml_to_pandas_df(gz_file_path=None):
     """
+    Depreciated due to: scrape_user_data_from_username
     Creates a dataframe from user's xml file. The dataframe contains the completed animes with their user scores.
 
     Parameters:
@@ -53,20 +59,77 @@ def user_xml_to_pandas_df(gz_file_path):
     Returns:
     user_df (Dataframe): Dataframe with 2 columns; animeId and scored
     """
-    gz_file_path = '/home/flarelink/Documents/Github_Projects/Anime_Recommender_System/animelist_1576887385_-_3451891.xml.gz'
-    with gzip.open(gz_file_path) as xml_file:
-        data = BeautifulSoup(xml_file, 'xml')
-        all_anime = data.find_all('anime')
-        vals = []
-        user_df = pd.DataFrame(columns=['animeID', 'scored'])
-        pos = 0
-        for anime in all_anime:
-            if anime.find('my_status').text == 'Completed':
-                vals.append(anime.find('series_animedb_id').text)
-                vals.append(anime.find('my_score').text)
+    if gz_file_path:
+        with gzip.open(gz_file_path) as xml_file:
+            data = BeautifulSoup(xml_file, 'xml')
+            all_anime = data.find_all('anime')
+            vals = []
+            user_df = pd.DataFrame(columns=['animeID', 'scored'])
+            pos = 0
+            for anime in all_anime:
+                if anime.find('my_status').text == 'Completed':
+                    vals.append(int(anime.find('series_animedb_id').text))
+                    vals.append(int(anime.find('my_score').text))
 
-                # all anime details
-                user_df.loc[pos] = vals
+                    # all anime details
+                    user_df.loc[pos] = vals
+                    vals = []
+                    pos += 1
+    else:
+        user_df = pd.DataFrame()
+
+    return user_df
+
+
+def scrape_user_data_from_username(username=None):
+    df = pd.DataFrame(columns=['animeID', 'scored'])
+    pos = 0
+    if username:
+        session = HTMLSession()
+        source = session.get('https://myanimelist.net/animelist/' + username + '?status=2')
+
+
+        if source.status_code == 200:
+            vals = []
+
+            source.html.render()  # run the javascript on the page and obtain the html
+            source.html.html
+
+            soup = BeautifulSoup(source.html.html, "html.parser")
+            for anime_row in soup.find_all('tbody', class_='list-item'):
+                anime_id = anime_row.find('a', class_='link sort')['href'].split('/')[-2]
+                bad_chars = str.maketrans(dict.fromkeys("\n[]', "))
+                anime_scored = anime_row.find('td', class_='data score').text
+                anime_scored = anime_scored.translate(bad_chars)
+                if anime_scored == '-':
+                    anime_scored = 0
+
+                vals.append(anime_id)
+                vals.append(anime_scored)
+
+                # anime_id and anime_scored
+                df.loc[pos] = vals
                 vals = []
                 pos += 1
-    return user_df
+
+    return df
+
+
+def scrape_image_url(anime_id):
+    """
+    Scrapes anime url from myanimelist.net using the anime_id
+
+    Parameters:
+    anime_id (str): anime id to scrape image from
+
+    Returns:
+    anime_img_url (str): the url to the image of the anime
+    """
+    anime_img_url = ''
+    source = requests.get('https://myanimelist.net/anime/' + str(anime_id))
+    if source.status_code == 200:
+        soup = BeautifulSoup(source.text, "html.parser")
+        anime_img_url = soup.find('img', class_='ac')['src']
+
+    return anime_img_url
+
