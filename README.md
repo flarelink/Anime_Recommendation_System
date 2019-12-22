@@ -19,7 +19,7 @@ For additional options on the arguments used in the program run:
 python3 main.py -h
 
 
-Python Version used and OS:
+Python Version and OS used:
 --------------
 - Python 3.7.4
 - Ubuntu 18.04LTS 
