@@ -5,4 +5,5 @@ NO.txt
 notes.csv
 *.gz
 *.ipynb
-
+.idea/
+__pycache__
