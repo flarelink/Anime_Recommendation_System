@@ -82,35 +82,40 @@ def user_xml_to_pandas_df(gz_file_path=None):
 
 
 def scrape_user_data_from_username(username=None):
+    # reference: http://theautomatic.net/2019/01/19/scraping-data-from-javascript-webpage-python/
     df = pd.DataFrame(columns=['animeID', 'scored'])
     pos = 0
     if username:
         session = HTMLSession()
         source = session.get('https://myanimelist.net/animelist/' + username + '?status=2')
 
-
         if source.status_code == 200:
             vals = []
 
-            source.html.render()  # run the javascript on the page and obtain the html
+            source.html.render(scrolldown=1000)  # run the javascript on the page and obtain the html
             source.html.html
 
             soup = BeautifulSoup(source.html.html, "html.parser")
             for anime_row in soup.find_all('tbody', class_='list-item'):
                 anime_id = anime_row.find('a', class_='link sort')['href'].split('/')[-2]
+
                 bad_chars = str.maketrans(dict.fromkeys("\n[]', "))
                 anime_scored = anime_row.find('td', class_='data score').text
                 anime_scored = anime_scored.translate(bad_chars)
                 if anime_scored == '-':
                     anime_scored = 0
 
-                vals.append(anime_id)
-                vals.append(anime_scored)
+                vals.append(int(anime_id))
+                vals.append(int(anime_scored))
 
                 # anime_id and anime_scored
                 df.loc[pos] = vals
                 vals = []
                 pos += 1
+
+        else:
+            print('The url was: ', 'https://myanimelist.net/animelist/' + username + '?status=2')
+            print('Unable to scrape user data', source.status_code)
 
     return df
 
@@ -130,6 +135,8 @@ def scrape_image_url(anime_id):
     if source.status_code == 200:
         soup = BeautifulSoup(source.text, "html.parser")
         anime_img_url = soup.find('img', class_='ac')['src']
+    else:
+        anime_img_url = str(source.status_code)
 
     return anime_img_url
 

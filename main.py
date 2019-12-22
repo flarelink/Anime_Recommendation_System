@@ -52,16 +52,18 @@ def create_parser():
     # arguments for recommender system
     parser.add_argument('-g', '--genres', type=str2bool, default=False,
                         help='Specify if we want to grab genres off web page or from local txt file')
-    parser.add_argument('-s', '--sel_anime', type=str, default="One Piece",
+    parser.add_argument('-s', '--sel_anime', type=str, default="Dr. Stone",
                         help='The anime you want recommendations based off of')
     parser.add_argument('-n', '--num_recs', type=int, default=5,
                         help='Number of output recommendations')
 
     # arguments for user data
     # extract gz from: https://myanimelist.net/panel.php?go=export
-    parser.add_argument('-u', '--user_gz', type=str, default=os.path.join(os.getcwd(),
+    parser.add_argument('-gz', '--user_gz', type=str, default=os.path.join(os.getcwd(),
                                                                           'animelist_1576887385_-_3451891.xml.gz'),
                         help='Specify path to user profile gz')
+    parser.add_argument('-u', '--username', type=str, default=None,
+                        help='Specify your myanimelist.net username to make sure the anime has not been seen by you')
 
     args = parser.parse_args()
 
@@ -86,9 +88,8 @@ def main():
     # run through anime recommender
     recommendations, scraped_images = content_based(args)
 
-    for r, img in zip(recommendations, scraped_images):
-        print(r)
-        print(img)
+    print(recommendations)
+    print(scraped_images)
 
 
 

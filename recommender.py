@@ -31,6 +31,7 @@ def content_based(args):
     # anime to recommend based off of
     sel_anime = args.sel_anime
     sel_anime_id = get_id_from_name(anime_df, sel_anime)
+    sel_anime_index = anime_df.loc[(anime_df['animeID'] == sel_anime_id)].index[0]
 
     # combine features to utilize in count/similarity matrices
     features = ['genre', 'type', 'studios']
@@ -43,7 +44,7 @@ def content_based(args):
     sim_matrix = cosine_similarity(count_matrix)
 
     # Now we sort the similar animes; ignore the first entry because it'll be the same anime specified
-    similar_animes = list(enumerate(sim_matrix[sel_anime_id]))
+    similar_animes = list(enumerate(sim_matrix[sel_anime_index]))
     similar_animes_sorted = sorted(similar_animes, key=lambda x: x[1])
 
     # Instead of just taking the most similar anime recommendation, let's instead sort them by the
@@ -52,7 +53,6 @@ def content_based(args):
     anime_df['norm_score'] = anime_df['scored'] / anime_df['scoredBy']
     anime_df.fillna(0)
     similar_animes_norm_score = sorted(similar_animes, key=lambda x: anime_df['norm_score'][x[0]])
-    # print(similar_animes_norm_score)
 
 
     # Loop through to collect the anime ids from the recommendations
@@ -71,7 +71,7 @@ def content_based(args):
             recommendations.append(anime_name)
             rec_img_urls.append(scrape_image_url(anime_id))
             i += 1
-        if i > args.num_recs:
+        if i > args.num_recs-1:
             break
 
     return recommendations, rec_img_urls
