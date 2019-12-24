@@ -19,17 +19,7 @@ For additional options on the arguments used in the program run:
 python3 main.py -h
 
 
-Requirements + Libraries:
+Python Version and OS used:
 --------------
-- Python 3.X
-- Pandas
-- NumPY
-- OS
-- Argparse
-- requests
-- requests_html
-- BeautifulSoup
-- Sci-kit learn
-
-I'm using the following OS:
-- Ubuntu 18.04LTS (I have not tested this program on Windows or Mac)
+- Python 3.7.4
+- Ubuntu 18.04LTS 
