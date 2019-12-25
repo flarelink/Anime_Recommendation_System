@@ -85,10 +85,11 @@ def main():
     args = create_parser()
 
     # run through anime recommender
-    recommendations, scraped_images = content_based(args)
+    recommendations, image_refs, sel_anime = content_based(args)
 
     print(recommendations)
-    print(scraped_images)
+    print(image_refs)
+    print(sel_anime)
 
 
 """

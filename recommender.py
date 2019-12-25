@@ -82,6 +82,7 @@ def content_based(args):
         sel_anime_id = get_id_from_name(anime_df, sel_anime)
     else:
         sel_anime_id = 1  # default to Cowboy Bepop if incorrect name
+        sel_anime = 'Cowboy Bepop'
 
     print(sel_anime_id)
     sel_anime_index = anime_df.loc[(anime_df['animeID'] == sel_anime_id)].index[0]
@@ -126,9 +127,9 @@ def content_based(args):
         if anime_id not in user_animes_seen and anime_id != sel_anime_id:
             anime_name = get_name_from_id(anime_df, anime_id)
             recommendations.append(anime_name)
-            rec_img_urls.append(os.path.join(args.anime_images, str(anime_id) + '.jpg'))#scrape_image_url(anime_id))
+            rec_img_urls.append(os.path.join(args.anime_images, str(anime_id) + '.jpg'))
             i += 1
         if i > args.num_recs-1:
             break
 
-    return recommendations, rec_img_urls
+    return recommendations, rec_img_urls, sel_anime
