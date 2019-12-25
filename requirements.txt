@@ -2,26 +2,26 @@
 # https://github.com/damnever/pigar
 
 # test.py: 9
-# utils.py: 1
+# utils.py: 9
 bs4 == 0.0.1
 
-# recommender.py: 2
-numpy == 1.17.4
-
-# main.py: 13
-# recommender.py: 1
+# myanimelist_scrape/getAnimeImages.py: 13
+# recommender.py: 9
 # test.py: 41
-# utils.py: 3
+# utils.py: 11
 pandas == 0.25.3
 
 # myanimelist_scrape/getAnime.py: 21
+# myanimelist_scrape/getAnimeImages.py: 9
 # test.py: 10
-# utils.py: 2
+# utils.py: 10
 requests == 2.22.0
 
 # test.py: 87
-# utils.py: 5
 requests_html == 0.10.0
 
-# recommender.py: 3,4
+# recommender.py: 11,12
 scikit_learn == 0.22
+
+# utils.py: 14,15
+selenium == 3.141.0
