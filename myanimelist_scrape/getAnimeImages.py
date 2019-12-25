@@ -1,3 +1,10 @@
+##############################################################################
+# getAnimeImages.py - Gathers anime images for each anime id
+#
+# Copyright (C) 2019   Humza Syed
+#
+# This is free software so please use it however you'd like! :)
+##############################################################################
 import json
 import requests
 import urllib
@@ -11,7 +18,7 @@ def scrape_images(dataset_path):
     Scrapes the images online using the anime ids
 
     :param dataset_path: path to Anime.csv
-    :return:
+    :return: folder filled with anime images
     """
     if not (os.path.exists(os.path.join(os.getcwd(), 'anime_imgs'))):
         os.mkdir('anime_imgs')
