@@ -7,3 +7,4 @@ notes.csv
 *.ipynb
 .idea/
 __pycache__
+*.log

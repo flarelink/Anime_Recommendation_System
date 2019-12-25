@@ -10,7 +10,6 @@
 from __future__ import print_function, division
 import argparse
 import os
-import pandas as pd
 from recommender import content_based
 
 """
@@ -48,6 +47,8 @@ def create_parser():
     # arguments for dataset
     parser.add_argument('-d', '--dataset_path', type=str, default=os.path.join(os.getcwd(), 'Anime.csv'),
                         help='Specify path to dataset')
+    parser.add_argument('-i', '--anime_images', type=str, default=os.path.join(os.getcwd(), 'anime_imgs'),
+                        help='Specify path to anime images directory')
 
     # arguments for recommender system
     parser.add_argument('-s', '--sel_anime', type=str, default="Dr. Stone",
@@ -63,12 +64,6 @@ def create_parser():
     parser.add_argument('-w', '--watching_list', type=str2bool, default=False,
                         help='Specify if you want to account for animes you are currently watching')
 
-    # extract gz from: https://myanimelist.net/panel.php?go=export
-    # depreciated:
-    # parser.add_argument('-gz', '--user_gz', type=str, default=os.path.join(os.getcwd(),
-    #                                                                        'animelist_1576887385_-_3451891.xml.gz'),
-    #                     help='Specify path to user profile gz')
-
     args = parser.parse_args()
 
     return args
@@ -83,7 +78,7 @@ def create_parser():
 
 def main():
     """
-      Runs through two images iteratively to make neural artwork~
+      Runs through an anime dataset to give recommendations~
     """
 
     # parsing input arguments
@@ -94,7 +89,6 @@ def main():
 
     print(recommendations)
     print(scraped_images)
-
 
 
 """
