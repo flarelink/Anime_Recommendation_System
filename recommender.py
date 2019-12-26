@@ -10,7 +10,7 @@ import pandas as pd
 import os
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from utils import scrape_image_url, scrape_user_data_from_username
+from utils import scrape_user_data_from_username
 
 
 # Helper functions
@@ -65,7 +65,6 @@ def content_based(args):
     anime_df.columns = anime_df.columns.str.lstrip()  # there was a space in the anime csv column header
 
     # save means before stripping NaNs
-    scoredBy_mean = anime_df['scoredBy'].mean()
     scored_mean = anime_df['scored'].mean()
     anime_df = anime_df.fillna(0)
 
@@ -78,13 +77,21 @@ def content_based(args):
     # anime to recommend based off of
     sel_anime = args.sel_anime
 
-    if sel_anime in anime_df['name'].values:
+    if sel_anime.lower() in anime_df['name'].str.lower().values:
         sel_anime_id = get_id_from_name(anime_df, sel_anime)
+        sel_anime = get_name_from_id(anime_df, sel_anime_id)
     else:
         sel_anime_id = 1  # default to Cowboy Bepop if incorrect name
         sel_anime = 'Cowboy Bepop'
 
-    print(sel_anime_id)
+    # save sel_anime row
+    sel_anime_df_row = anime_df.loc[(anime_df['animeID'] == sel_anime_id)]
+
+    # cutting data out for memory purposes and biasing
+    anime_df = anime_df[anime_df.scored > scored_mean]
+    anime_df = anime_df.append(sel_anime_df_row)
+    anime_df = anime_df.reset_index(drop=True)
+
     sel_anime_index = anime_df.loc[(anime_df['animeID'] == sel_anime_id)].index[0]
 
     # combine features to utilize in count/similarity matrices
@@ -104,11 +111,10 @@ def content_based(args):
     # Instead of just taking the most similar anime recommendation, let's instead sort them by the
     # animes that score the best relative to the number of people that scored
 
-    # bias factor(s)
-    anime_df.loc[anime_df.scored < scored_mean + 1, 'scored'] = 0.0
-
     # shrinkage estimator
     # https://stats.stackexchange.com/questions/6418/rating-system-taking-account-of-number-of-votes
+    scoredBy_mean = anime_df['scoredBy'].mean()
+    scored_mean = anime_df['scored'].mean()
     anime_df['norm_score'] = (anime_df['scoredBy'] / (anime_df['scoredBy'] + scoredBy_mean)) * anime_df['scored'] + \
                              (scoredBy_mean / (anime_df['scoredBy'] + scoredBy_mean)) * scored_mean
     similar_animes_norm_score = sorted(similar_animes_sorted, key=lambda x: anime_df['norm_score'][x[0]], reverse=True)
