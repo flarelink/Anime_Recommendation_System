@@ -51,7 +51,7 @@ def create_parser():
                         help='Specify path to anime images directory')
 
     # arguments for recommender system
-    parser.add_argument('-s', '--sel_anime', type=str, default="Dr. Stone",
+    parser.add_argument('-s', '--sel_anime', type=str, default="Naruto",
                         help='The anime you want recommendations based off of')
     parser.add_argument('-n', '--num_recs', type=int, default=5,
                         help='Number of output recommendations')
