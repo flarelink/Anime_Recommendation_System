@@ -15,7 +15,7 @@ pandas == 0.25.3
 # myanimelist_scrape/getAnimeImages.py: 9
 # test.py: 10
 # utils.py: 10
-requests == 2.22.0
+requests == 2.31.0
 
 # test.py: 87
 requests_html == 0.10.0
